@@ -18,7 +18,7 @@ last_response = None
 def fetch_data():
     """Fetch JSON data from the URL."""
     try:
-        response = requests.get(URL, verify=False)
+        response = requests.get(URL, verify=certifi.where())
         return response.json()  # Convert response to JSON
     except Exception as e:
         print(f"Error fetching data: {e}")
