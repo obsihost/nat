@@ -24,7 +24,7 @@ def fetch_data():
         print(f"Error fetching data: {e}")
         return None
 
-def generate_html(data):
+def generate_html(data, first_run=False):
     """Generate an HTML email with inline styles."""
     html_content = """
     <!DOCTYPE html>
@@ -39,7 +39,18 @@ def generate_html(data):
         <h1 style="font-size:24px; text-transform:uppercase; text-shadow:0px 0px 10px rgba(0, 255, 255, 0.8);">
             🔔 Results Announcements
         </h1>
+    """
 
+    if first_run:
+        html_content += """
+        <p style="font-size:18px; color:#0ff;">✅ The server is now active and will notify you of new results.</p>
+        """
+    else:
+        html_content += """
+        <p style="font-size:18px; color:#0ff;">🚀 A new result has been published!</p>
+        """
+
+    html_content += """
         <table style="width: 80%; margin: auto; border-collapse: collapse; background: rgba(255, 255, 255, 0.1); border-radius: 10px; overflow: hidden;">
             <tr style="background-color: rgba(255, 255, 255, 0.2);">
                 <th style="padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.3); color:#ffffff;">Date</th>
@@ -58,7 +69,6 @@ def generate_html(data):
         </tr>
         """
 
-    # Close the HTML structure
     html_content += """
         </table>
     </body>
@@ -66,14 +76,13 @@ def generate_html(data):
     """
     return html_content
 
-
-def send_email(html_content):
+def send_email(html_content, subject):
     """Send email with HTML content."""
     try:
         msg = MIMEMultipart()
         msg['From'] = SENDER_EMAIL
         msg['To'] = ", ".join(RECIPIENTS)
-        msg['Subject'] = "🔔 New Results Announcement"
+        msg['Subject'] = subject
 
         msg.attach(MIMEText(html_content, 'html'))
 
@@ -86,6 +95,16 @@ def send_email(html_content):
     except Exception as e:
         print(f"❌ Error sending email: {e}")
 
+# Fetch initial data
+print("🔍 Fetching initial data...")
+initial_data = fetch_data()
+
+if initial_data:
+    last_response = initial_data  # Store first response
+    print("📢 Sending initial activation email...")
+    initial_html = generate_html(initial_data, first_run=True)
+    send_email(initial_html, "🚀 Server Activated - Results Monitoring Started!")
+
 # Main loop to check for updates
 while True:
     print("🔍 Checking for updates...")
@@ -96,7 +115,7 @@ while True:
             print("🔔 Data changed! Sending email notification...")
             last_response = new_response  # Update stored response
             html = generate_html(new_response)
-            send_email(html)
+            send_email(html, "🔔 New Results Announcement!")
     else:
         print("✅ No changes detected.")
 
