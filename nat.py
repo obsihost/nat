@@ -107,4 +107,4 @@ while True:
     else:
         print("✅ No changes detected.")
 
-    time.sleep(10)  # Wait for 10 seconds before checking again
+    time.sleep(6)  # Wait for 10 seconds before checking again
