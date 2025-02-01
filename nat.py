@@ -98,13 +98,17 @@ while True:
     print("🔍 Checking for updates...")
     new_response = fetch_data()
 
-    if new_response and (last_response is not None):
-        if (json.dumps(new_response) != json.dumps(last_response)):
+    if new_response:
+        if last_response is None:  # Initialize last_response on the first run
+            last_response = new_response
+        elif json.dumps(new_response, sort_keys=True) != json.dumps(last_response, sort_keys=True):  
             print("🔔 Data changed! Sending email notification...")
             last_response = new_response  # Update stored response
             html = generate_html(new_response)
             send_email(html)
+        else:
+            print("✅ No changes detected.")
     else:
-        print("✅ No changes detected.")
+        print("⚠️ Error fetching data, skipping this check.")
 
-    time.sleep(6)  # Wait for 10 seconds before checking again
+    time.sleep(6)  # Wait for 6 seconds before checking again
